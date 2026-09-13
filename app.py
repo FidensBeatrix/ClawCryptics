@@ -923,7 +923,7 @@ GAME_HTML = r"""
 
         <br>
 
-        Race through the maze, collect every 🧰 <strong>treasure chest</strong>, and uncover the scrambled letters hidden inside.
+        Race through the maze, collect every <strong>treasure chest</strong>, and uncover the scrambled letters hidden inside.
 
         <br>
 
@@ -931,7 +931,7 @@ GAME_HTML = r"""
 
         <br>
 
-        Except there’s a hungry 🦖 <strong>dinosaur on your tail</strong>, and it has absolutely no respect for puzzle-solving time.
+        Except there’s a hungry <strong>dinosaur on your tail</strong>, and it has absolutely no respect for puzzle-solving time.
 
         <br>
 
@@ -2662,7 +2662,7 @@ function pauseGame() {
             [0, 0];
 
         state.lastEvent =
-            "🧺 Happy Laundry time 😌";
+            "🐾 PAWSING THE CLAWS 🐾 — Hunting for letters, dodging T-Rexes...";
 
         render();
 
@@ -3058,6 +3058,87 @@ function drawRect(
    DRAW PORTAL
    ============================================================ */
 
+function portalShapePath(label, cx, cy, radius) {
+
+    ctx.beginPath();
+
+    if (label === "A") {
+
+        /* SQUARE */
+        ctx.rect(
+            cx - radius,
+            cy - radius,
+            radius * 2,
+            radius * 2
+        );
+
+    }
+
+    else if (label === "B") {
+
+        /* CIRCLE */
+        ctx.arc(
+            cx,
+            cy,
+            radius,
+            0,
+            Math.PI * 2
+        );
+
+    }
+
+    else if (label === "C") {
+
+        /* TRIANGLE */
+        ctx.moveTo(
+            cx,
+            cy - radius
+        );
+
+        ctx.lineTo(
+            cx + radius,
+            cy + radius
+        );
+
+        ctx.lineTo(
+            cx - radius,
+            cy + radius
+        );
+
+        ctx.closePath();
+
+    }
+
+    else {
+
+        /* D = DIAMOND */
+        ctx.moveTo(
+            cx,
+            cy - radius
+        );
+
+        ctx.lineTo(
+            cx + radius,
+            cy
+        );
+
+        ctx.lineTo(
+            cx,
+            cy + radius
+        );
+
+        ctx.lineTo(
+            cx - radius,
+            cy
+        );
+
+        ctx.closePath();
+
+    }
+
+}
+
+
 function drawPortal(
     pos,
     label,
@@ -3078,14 +3159,13 @@ function drawPortal(
         r * CELL +
         CELL / 2;
 
-    ctx.beginPath();
+    /* OUTER SHAPE */
 
-    ctx.arc(
+    portalShapePath(
+        label,
         cx,
         cy,
-        14,
-        0,
-        Math.PI * 2
+        13
     );
 
     ctx.fillStyle =
@@ -3119,14 +3199,13 @@ function drawPortal(
 
     ctx.stroke();
 
-    ctx.beginPath();
+    /* INNER SHAPE */
 
-    ctx.arc(
+    portalShapePath(
+        label,
         cx,
         cy,
-        9,
-        0,
-        Math.PI * 2
+        8
     );
 
     ctx.strokeStyle =
@@ -3137,20 +3216,30 @@ function drawPortal(
 
     ctx.stroke();
 
+    /* PORTAL LETTER */
+
     ctx.textAlign =
         "center";
+
+    ctx.textBaseline =
+        "middle";
 
     ctx.fillStyle =
         "white";
 
     ctx.font =
-        "bold 12px Arial";
+        "bold 11px Arial";
 
     ctx.fillText(
         label,
         cx,
-        cy + 2
+        cy - 1
     );
+
+    /* IN / OUT */
+
+    ctx.textBaseline =
+        "alphabetic";
 
     ctx.font =
         "bold 6px Arial";
@@ -3163,8 +3252,7 @@ function drawPortal(
         "OUT",
 
         cx,
-
-        cy + 11
+        cy + 9
     );
 
 }
@@ -3579,34 +3667,37 @@ function drawPauseOverlay() {
         "#bbf7d0";
 
     ctx.font =
-        "bold 32px Arial";
+        "bold 30px Arial";
 
     ctx.fillText(
-        "🧺 Happy Laundry time...",
+        "🐾 PAWSING THE CLAWS 🐾",
         cx,
-        cy - 62
+        cy - 68
     );
 
     ctx.fillStyle =
         "white";
 
     ctx.font =
-        "bold 20px Arial";
+        "bold 18px Arial";
 
     ctx.fillText(
-        "Everything is extra cozy, suspiciously funny,",
+        "Hunting for letters, dodging T-Rexes...",
         cx,
-        cy - 12
+        cy - 18
     );
 
     ctx.fillText(
-        "and the snacks are suddenly incredible. 😌",
+        "even legendary castle explorers need a breather.",
         cx,
-        cy + 18
+        cy + 14
     );
 
     ctx.fillStyle =
         "#93c5fd";
+
+    ctx.font =
+        "bold 18px Arial";
 
     ctx.fillText(
         "Press SPACE when you're ready to run again!",
@@ -4615,7 +4706,7 @@ helpGameLiveButton.addEventListener(
             state.paused = true;
             state.playerDir = [0, 0];
             state.nextDir = [0, 0];
-            state.lastEvent = "🧺 Happy Laundry time 😌";
+            state.lastEvent = "🐾 PAWSING THE CLAWS 🐾 — Hunting for letters, dodging T-Rexes...";
             render();
         }
 
