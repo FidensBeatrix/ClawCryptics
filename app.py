@@ -1,13 +1,31 @@
 import json
+import base64
+from pathlib import Path
+
 import streamlit as st
 import streamlit.components.v1 as components
+
+
+def image_to_data_uri(filename: str) -> str:
+    """Embed a local image so it also works inside the Streamlit component iframe."""
+    path = Path(filename)
+    if not path.exists():
+        return ""
+
+    suffix = path.suffix.lower()
+    mime = "image/jpeg" if suffix in {".jpg", ".jpeg"} else "image/png"
+    encoded = base64.b64encode(path.read_bytes()).decode("ascii")
+    return f"data:{mime};base64,{encoded}"
+
+
+CLAW_CRYPTICS_IMAGE = image_to_data_uri("ClawCryptics.jpg")
 
 # ============================================================
 # PAGE CONFIG
 # ============================================================
 st.set_page_config(
-    page_title="Talking Cupcake",
-    page_icon="🧁",
+    page_title="Claw Cryptics",
+    page_icon="🐾",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -108,6 +126,19 @@ GAME_HTML = r"""
     font-size:
         16px;
 }
+#intro-image {
+    display: block;
+    width: min(560px, 88%);
+    max-height: 230px;
+    object-fit: contain;
+    margin: 0 auto 16px auto;
+    border-radius: 12px;
+}
+
+#intro-image[src=""] {
+    display: none;
+}
+
 #intro-title {
     color:
         #ffd166;
@@ -880,55 +911,31 @@ GAME_HTML = r"""
 
 <div id="intro-panel">
 
+    <img id="intro-image" src="__CLAW_IMAGE__" alt="Claw Cryptics">
+
     <div id="intro-title">
-        🧁 Welcome, Marcell!
+        🐾 Welcome, Puzzle Runner!
     </div>
 
     <div id="intro-text">
 
-        The Pontiac family is having a perfectly normal family day...
+        Welcome to <strong>Claw Cryptics</strong> — a prehistoric word chase where quick feet and a quicker brain are equally useful.
 
         <br>
 
-        Except for one tiny problem.
+        Race through the maze, collect every 🧁 <strong>cupcake</strong>, and uncover the scrambled letters hiding inside them.
 
         <br>
 
-        🦖 <strong>A DINOSAUR IS CHASING THEM.</strong>
+        Sounds simple, right?
 
         <br>
 
-        And apparently, <strong>you’re the only person qualified to deal with this situation.</strong>
+        Except there’s a hungry 🦖 <strong>dinosaur on your tail</strong>, and it has absolutely no respect for puzzle-solving time.
 
         <br>
 
-        Your mission is simple: guide the Pontiac family through the playground, collect every 🧁 <strong>cupcake</strong>, and reveal the hidden letters along the way.
-
-        <br>
-
-        The letters will be completely scrambled — because obviously the dinosaur couldn't make this easy.
-
-        <br>
-
-        Collect them all, solve the <strong>anagram</strong>, and figure out the secret word or phrase to save the Pontiac family!
-
-        <br>
-
-        Sounds easy, right?
-
-        <br>
-
-        <strong>Cupcakes = good. 🧁<br>
-        Dinosaur = bad. 🦖<br>
-        Pontiac family becoming dinosaur lunch = VERY bad.</strong>
-
-        <br>
-
-        Good luck, Marcell.
-
-        <br>
-
-        <strong>The Pontiac family is counting on you. 👨‍👩‍👧</strong>
+        Grab all the letters, crack the hidden word or phrase, and escape before you become the final item on the lunch menu.
 
     </div>
 
@@ -1008,7 +1015,7 @@ GAME_HTML = r"""
 <div id="ks-header">
 
     <div id="ks-title">
-        🧁 Talking Cupcake 🧁
+        🐾 Claw Cryptics 🐾
     </div>
 
     <div id="ks-status">
@@ -3684,9 +3691,9 @@ function render() {
 
                     CELL - 2,
 
-                    "#111827",
+                    "#e7e5e4",
 
-                    "#2f855a",
+                    "#cbd5e1",
 
                     2
 
@@ -4630,6 +4637,8 @@ resetGame(
 # ============================================================
 # DISPLAY GAME
 # ============================================================
+
+GAME_HTML = GAME_HTML.replace("__CLAW_IMAGE__", CLAW_CRYPTICS_IMAGE)
 
 components.html(
     GAME_HTML,
