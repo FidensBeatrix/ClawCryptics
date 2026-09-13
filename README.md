@@ -1,56 +1,148 @@
-# Dino-Word hunt — Streamlit
+# Claw Cryptics --- Streamlit
 
-Browser version of the Kinetic Sand castle game.
+A browser-based maze and word-hunt game built with **Streamlit,
+HTML/CSS, and JavaScript**.
+
+Play as a green dog, explore the maze, collect treasure chests
+containing scrambled letters, avoid the dinosaur, and solve the hidden
+answer.
+
+Answers may be in **Slovak or English** and can be a **word, phrase,
+name, place, or brand**.
+
+## Main features
+
+-   Random word / phrase selection
+-   Treasure chests with scrambled letters
+-   Dinosaur chase
+-   Multiple maze orientations
+-   IN / OUT portals with different shapes
+-   Keyboard and mobile controls
+-   Pause / resume
+-   Hints
+-   Win fireworks
+-   Player selection
+-   Shared Supabase scoreboard
+-   Tracks games, wins, and different solved words
+-   Optional **New words only** mode
+-   Responsive layout:
+    -   desktop: scoreboard beside the playground
+    -   mobile: scoreboard below the playground
 
 ## Files
 
-- `app.py` — Streamlit app + browser game
-- `RATeamLogo.png` — put your logo beside `app.py`
-- `requirements.txt`
-- `.streamlit/secrets.toml.example` — example login configuration
+-   `app.py` --- main Streamlit app and browser game
+-   `ClawCryptics.jpg` --- welcome-screen image; keep it beside `app.py`
+-   `requirements.txt` --- Python dependencies
+-   `.streamlit/secrets.toml` --- local Supabase configuration (**do not
+    upload this file to GitHub**)
 
 ## Local run
 
-```bash
+Install the requirements:
+
+``` bash
 pip install -r requirements.txt
+```
+
+Then start the app:
+
+``` bash
 streamlit run app.py
 ```
 
-For local login testing, copy:
+## Supabase setup
 
-`.streamlit/secrets.toml.example`
+Claw Cryptics uses Supabase to store the shared player scoreboard.
 
-to:
+The player table stores:
 
-`.streamlit/secrets.toml`
+-   player name
+-   games played
+-   wins
+-   different correctly solved words
 
-and change the passwords.
+The app reads the Supabase connection details from Streamlit Secrets.
 
-**Never upload the real `secrets.toml` file to GitHub.**
+For local testing, create:
+
+``` text
+.streamlit/secrets.toml
+```
+
+and add:
+
+``` toml
+SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL"
+SUPABASE_ANON_KEY = "YOUR_SUPABASE_PUBLISHABLE_KEY"
+```
+
+Use only the **public / publishable key** in the game.
+
+**Never put a Supabase secret or service-role key in the browser game or
+GitHub repository.**
 
 ## Streamlit Community Cloud
 
-1. Push this folder to GitHub.
-2. Create a new Streamlit app from the repository.
-3. Main file path: `app.py`
-4. In the Streamlit app settings, open **Secrets**.
-5. Paste:
+1.  Push the project files to GitHub.
+2.  Create a Streamlit Community Cloud app from the repository.
+3.  Set the main file path to `app.py`.
+4.  Open the app's **Settings → Secrets**.
+5.  Add:
 
-```toml
-[auth.users]
-Username = "YOUR_PASSWORD"
+``` toml
+SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL"
+SUPABASE_ANON_KEY = "YOUR_SUPABASE_PUBLISHABLE_KEY"
 ```
 
-6. Save/reboot the app if requested.
+6.  Save the secrets and reboot the app if Streamlit requests it.
 
-The login page reads those credentials from `st.secrets`.
+## Welcome image
 
-## Logo
+Keep the image named exactly:
 
-Add your real file named exactly:
+``` text
+ClawCryptics.jpg
+```
 
-`RATeamLogo.png`
+in the same repository folder as `app.py`.
 
-to the same repository folder as `app.py`.
+The app converts the image to a data URI so it can also be displayed
+inside the Streamlit game component.
 
-It will appear beside the login form.
+## Controls
+
+**PC**
+
+-   Arrow Keys / WASD --- move
+-   SPACE --- pause / resume
+-   ENTER --- start a new game after the end screen
+
+**Mobile**
+
+-   Use the on-screen directional controls.
+
+## Game goal
+
+1.  Choose an existing player or create a new one.
+2.  Move through the maze as the green dog.
+3.  Collect every treasure chest before the dinosaur catches you.
+4.  Each chest reveals one scrambled character.
+5.  Use the collected characters and optional hint to solve the hidden
+    answer.
+6.  Correct answers increase the player's wins and solved-word count in
+    Supabase.
+
+## Important
+
+Do not commit real Streamlit secrets to GitHub.
+
+A `.gitignore` should include:
+
+``` gitignore
+.streamlit/secrets.toml
+```
+
+The Supabase **publishable key** is designed for client-side use, but
+database access should still be controlled with appropriate Supabase Row
+Level Security (RLS) policies.
