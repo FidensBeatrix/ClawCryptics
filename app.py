@@ -923,7 +923,7 @@ GAME_HTML = r"""
 
         <br>
 
-        Race through the maze, collect every 🧁 <strong>cupcake</strong>, and uncover the scrambled letters hiding inside them.
+        Race through the maze, collect every 🧰 <strong>treasure chest</strong>, and uncover the scrambled letters hidden inside.
 
         <br>
 
@@ -956,31 +956,36 @@ GAME_HTML = r"""
         <h3>🎮 How to play</h3>
 
         <p>
-            You are the <strong>family</strong>.
-            Your job is to explore the playground while the
-            <strong>red dinosaur</strong> chases you.
+            You are the <strong>green dog</strong>. 🐶
+            Explore the maze while the <strong>red dinosaur</strong> hunts you down.
         </p>
 
         <p>
-            Around the maze you will find <strong>cupcakes</strong>.
-            Walk into a cupcake to collect it and reveal one hidden character.
+            Treasure chests are scattered around the maze.
+            Walk into a <strong>chest</strong> to open it and reveal one scrambled character.
         </p>
 
         <p>
-            The playground also contains <strong>portals</strong>.
-            Matching letters show which portal connects to which.
+            Collect <strong>every chest</strong> before the dinosaur catches you.
+            Once you have all the characters, solve the hidden
+            <strong>word, phrase, or name</strong>.
+        </p>
+
+        <p>
+            The maze also contains <strong>portals</strong>.
+            Matching letters show which portals belong together:
             <strong>Purple = IN</strong> and <strong>blue = OUT</strong>.
         </p>
 
         <p>
-            After you collect every cupcake, you will be asked to solve the secret.
-            The answer can be a <strong>word</strong>, a <strong>phrase</strong>,
-            or a <strong>name</strong>.
+            Move with <strong>Arrow Keys</strong> or <strong>WASD</strong>.
+            On mobile, use the on-screen controls.
+            Press <strong>SPACE</strong> to pause or resume.
         </p>
 
         <p>
-            Move with <strong>Arrow Keys</strong> or <strong>WASD</strong>.
-            Press <strong>SPACE</strong> to pause or resume.
+            If the dinosaur catches the dog, the dog disappears and
+            <strong>the dinosaur wins</strong>. 🦖
         </p>
 
         <button id="close-help">
@@ -1061,7 +1066,7 @@ GAME_HTML = r"""
 <div id="guess-panel">
 
     <h3>
-        🦖😢 NOOO! YOU GOT ALL THE MUFFINS!
+        🦖😢 NOOO! YOU GOT ALL THE CHESTS!
     </h3>
 
     <div id="guess-text">
@@ -1169,7 +1174,7 @@ const WORD_HINTS = {
     "West Coast Swing": "A dance style: smooth, slotted, and definitely not from the East Coast.",
     "Jungle Book": "A classic story with a jungle, a boy, and some extremely opinionated animals.",
     "Marci around the big world": "Think back — in one part of it, you were amazed by how quickly they managed to asphalt a road.",
-    "Share": "Five letters. What you do when one cupcake should become everybody's problem.",
+    "Share": "Five letters. What you do when treasure is too good to keep to yourself.",
     "404 Joke Not Found": "A web error went looking for a punchline... but apparently the page is missing.",
     "Pi Never Ends": "A math constant whose decimal expansion has absolutely no idea when to stop."
 };
@@ -1810,7 +1815,7 @@ function resetGame(
             0,
 
         lastEvent:
-            "Find all letters in the cupcakes!"
+            "Find all letters in the treasure chests!"
 
     };
 
@@ -2019,7 +2024,7 @@ function checkCastle() {
         250;
 
     state.lastEvent =
-        `🧁 Muffin collected — letter: ${letter}`;
+        `🧰 Chest opened — letter: ${letter}`;
 
     if (
         state.castles.size === 0
@@ -2035,7 +2040,7 @@ function checkCastle() {
             true;
 
         state.lastEvent =
-            "🦖😢 NOOO! You got all the cupcakes...";
+            "🦖😢 NOOO! You opened all the chests...";
 
         /*
         Show the guess panel almost immediately.
@@ -2609,7 +2614,7 @@ function startOpeningCountdown() {
                     false;
 
                 state.lastEvent =
-                    "Collect all cupcakes!";
+                    "Collect all treasure chests!";
 
                 render();
 
@@ -2996,7 +3001,7 @@ function updateLabels() {
     const found = total - state.castles.size;
 
     statusEl.textContent =
-        `Cupcakes ${found}/${total}` +
+        `Chests ${found}/${total}` +
         `   •   Score ${state.score}` +
         `   •   ${state.lastEvent}`;
 
@@ -3165,7 +3170,7 @@ function drawPortal(
 }
 
 /* ============================================================
-   DRAW CUPCAKE
+   DRAW TREASURE CHEST
    ============================================================ */
 
 function drawCastle(pos) {
@@ -3174,41 +3179,82 @@ function drawCastle(pos) {
     const cx = c * CELL + CELL / 2;
     const cy = r * CELL + CELL / 2;
 
-    /* MUFFIN WRAPPER */
+    /* CHEST BODY */
     ctx.beginPath();
-    ctx.moveTo(cx - 9, cy + 1);
-    ctx.lineTo(cx + 9, cy + 1);
-    ctx.lineTo(cx + 7, cy + 12);
-    ctx.lineTo(cx - 7, cy + 12);
-    ctx.closePath();
-    ctx.fillStyle = "#f59e0b";
+    ctx.roundRect(
+        cx - 11,
+        cy - 2,
+        22,
+        14,
+        3
+    );
+    ctx.fillStyle = "#92400e";
     ctx.fill();
-    ctx.strokeStyle = "#92400e";
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = "#fbbf24";
+    ctx.lineWidth = 2;
     ctx.stroke();
 
-    /* MUFFIN TOP */
+    /* CHEST LID */
     ctx.beginPath();
-    ctx.arc(cx, cy - 2, 11, Math.PI, 0);
-    ctx.arc(cx + 6, cy - 1, 6, Math.PI * 1.5, Math.PI * 0.5);
-    ctx.arc(cx - 6, cy - 1, 6, Math.PI * 0.5, Math.PI * 1.5);
-    ctx.closePath();
-    ctx.fillStyle = "#fbbf24";
+    ctx.roundRect(
+        cx - 11,
+        cy - 10,
+        22,
+        10,
+        5
+    );
+    ctx.fillStyle = "#b45309";
     ctx.fill();
-    ctx.strokeStyle = "#92400e";
+    ctx.strokeStyle = "#fbbf24";
+    ctx.lineWidth = 2;
     ctx.stroke();
 
-    /* CHOCOLATE CHIPS */
-    ctx.fillStyle = "#78350f";
-    for (const [dx, dy] of [[-5,-5],[3,-7],[6,-1],[-2,0]]) {
-        ctx.beginPath();
-        ctx.arc(cx + dx, cy + dy, 1.5, 0, Math.PI * 2);
-        ctx.fill();
-    }
+    /* GOLD BAND */
+    ctx.fillStyle = "#facc15";
+    ctx.fillRect(
+        cx - 2,
+        cy - 9,
+        4,
+        20
+    );
+
+    /* LOCK */
+    ctx.beginPath();
+    ctx.roundRect(
+        cx - 3.5,
+        cy + 1,
+        7,
+        6,
+        1.5
+    );
+    ctx.fillStyle = "#fde68a";
+    ctx.fill();
+    ctx.strokeStyle = "#713f12";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    /* TINY KEYHOLE */
+    ctx.beginPath();
+    ctx.arc(
+        cx,
+        cy + 3,
+        1.2,
+        0,
+        Math.PI * 2
+    );
+    ctx.fillStyle = "#713f12";
+    ctx.fill();
+
+    ctx.fillRect(
+        cx - 0.6,
+        cy + 3,
+        1.2,
+        2.2
+    );
 }
 
 /* ============================================================
-   DRAW PLAYER - FAMILY
+   DRAW PLAYER - GREEN DOG
    ============================================================ */
 
 function drawPlayer() {
@@ -3217,27 +3263,126 @@ function drawPlayer() {
     const cx = c * CELL + CELL / 2;
     const cy = r * CELL + CELL / 2;
 
-    /* FAMILY: two adults + child */
-    const people = [
-        {x: cx - 8, y: cy - 5, head: 5, body: "#2563eb"},
-        {x: cx + 8, y: cy - 5, head: 5, body: "#db2777"},
-        {x: cx,     y: cy + 3, head: 4, body: "#16a34a"}
-    ];
+    /* LEFT EAR */
 
-    for (const p of people) {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y - 4, p.head, 0, Math.PI * 2);
-        ctx.fillStyle = "#f5cfa0";
-        ctx.fill();
-        ctx.strokeStyle = "#fff7ed";
-        ctx.lineWidth = 1;
-        ctx.stroke();
+    ctx.beginPath();
 
-        ctx.beginPath();
-        ctx.roundRect(p.x - 5, p.y + 1, 10, 9, 3);
-        ctx.fillStyle = p.body;
-        ctx.fill();
-    }
+    ctx.ellipse(
+        cx - 11,
+        cy - 2,
+        6,
+        10,
+        -.25,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fillStyle =
+        "#15803d";
+
+    ctx.fill();
+
+    /* RIGHT EAR */
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+        cx + 11,
+        cy - 2,
+        6,
+        10,
+        .25,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+    /* HEAD */
+
+    ctx.beginPath();
+
+    ctx.arc(
+        cx,
+        cy,
+        13,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fillStyle =
+        "#22c55e";
+
+    ctx.fill();
+
+    ctx.strokeStyle =
+        "#bbf7d0";
+
+    ctx.lineWidth =
+        2;
+
+    ctx.stroke();
+
+    /* MUZZLE */
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+        cx,
+        cy + 5,
+        8,
+        6,
+        0,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fillStyle =
+        "#dcfce7";
+
+    ctx.fill();
+
+    /* EYES */
+
+    ctx.beginPath();
+
+    ctx.arc(
+        cx - 5,
+        cy - 4,
+        2,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.arc(
+        cx + 5,
+        cy - 4,
+        2,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fillStyle =
+        "#111827";
+
+    ctx.fill();
+
+    /* NOSE */
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+        cx,
+        cy + 2,
+        3,
+        2.5,
+        0,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
 }
 
 /* ============================================================
@@ -3486,7 +3631,7 @@ function drawGuessOverlay() {
     ctx.fillStyle = "#ffd166";
     ctx.font = "bold 31px Arial";
     ctx.fillText(
-        "🦖😢 NOOO! YOU GOT ALL THE MUFFINS!",
+        "🦖😢 NOOO! YOU GOT ALL THE CHESTS!",
         cx,
         cy - 42
     );
@@ -3691,11 +3836,11 @@ function render() {
 
                     CELL - 2,
 
-                    "#e7e5e4",
+                    "#050505",
 
-                    "#cbd5e1",
+                    "#f2f2f2",
 
-                    2
+                    1.5
 
                 );
 
@@ -3753,7 +3898,7 @@ function render() {
 
     }
 
-    /* CASTLES */
+    /* TREASURE CHESTS */
 
     for (
         const k
@@ -3771,7 +3916,7 @@ function render() {
     /* CHARACTERS */
 
     // The dinosaur stays visible after a loss.
-    // The family disappears once the dinosaur catches them.
+    // The green dog disappears once the dinosaur catches it.
     drawDino();
 
     if (!(state.gameOver && !state.won)) {
