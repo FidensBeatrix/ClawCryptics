@@ -1037,7 +1037,7 @@ GAME_HTML = r"""
     <img id="intro-image" src="__CLAW_IMAGE__" alt="Claw Cryptics">
 
     <div id="intro-title">
-        🐾 Welcome, Puzzle Runner!
+        🐾 Welcome, Chest Hunter!
     </div>
 
     <div id="intro-text">
@@ -1046,7 +1046,7 @@ GAME_HTML = r"""
 
         <br>
 
-        Race through the maze, collect every 🧰 <strong>treasure chest</strong>, and uncover the scrambled letters hidden inside.
+        Step into the hunt, collect every <strong>treasure chest</strong>, and uncover the scrambled letters hidden inside.
 
         <br>
 
@@ -1054,7 +1054,7 @@ GAME_HTML = r"""
 
         <br>
 
-        Except there’s a hungry 🦖 <strong>dinosaur on your tail</strong>, and it has absolutely no respect for puzzle-solving time.
+        Except there’s a hungry <strong>dinosaur on your tail</strong>, and it has absolutely no respect for puzzle-solving time.
 
         <br>
 
@@ -1122,8 +1122,10 @@ GAME_HTML = r"""
 
         <p>
             Collect <strong>every chest</strong> before the dinosaur catches you.
-            Once you have all the characters, solve the hidden
-            <strong>word, phrase, or name</strong>.
+            Once you have all the characters, solve the hidden answer.
+            It can be in <strong>Slovak or English</strong> and may be a
+            <strong>word</strong>, <strong>phrase</strong>, <strong>name</strong>,
+            <strong>place</strong>, or <strong>brand</strong>.
         </p>
 
         <p>
@@ -1632,27 +1634,33 @@ if (HAS_TOUCH_UI) {
 }
 
 const WORD_OPTIONS = [
-    "MOP",
-    "Pontiac",
-    "Ex-wife",
-    "West Coast Swing",
-    "Jungle Book",
-    "Marci around the big world",
-    "Share",
-    "404 Joke Not Found",
-    "Pi Never Ends"
+    "Pelisky",
+    "Neni vojak jako vojak",
+    "Proletarian",
+    "Knedlik",
+    "Najvyrukavickovanejsi",
+    "Najneobhospodarovavatelnejsi",
+    "You shall not pass",
+    "ABCanalysis",
+    "Hyundai",
+    "Podbiel",
+    "Orava",
+    "Toffifee"
 ];
 
 const WORD_HINTS = {
-    "MOP": "Three letters. Think cleaning floors — or maybe a person.",
-    "Pontiac": "Think of a place where you met John.",
-    "Ex-wife": "Two words. A relationship status where the romance is very much in the past.",
-    "West Coast Swing": "A dance style: smooth, slotted, and definitely not from the East Coast.",
-    "Jungle Book": "A classic story with a jungle, a boy, and some extremely opinionated animals.",
-    "Marci around the big world": "Think back — in one part of it, you were amazed by how quickly they managed to asphalt a road.",
-    "Share": "Five letters. What you do when treasure is too good to keep to yourself.",
-    "404 Joke Not Found": "A web error went looking for a punchline... but apparently the page is missing.",
-    "Pi Never Ends": "A math constant whose decimal expansion has absolutely no idea when to stop."
+    "Pelisky": ""A late-1990s Czech film set around a very tense period in modern history.",
+    "Neni vojak jako vojak": "A memorable line connected with the same Czech film as another answer in this game.",
+    "Proletarian": "A word connected with the working class and old political terminology, a term strongly associated with Marxist theory.",
+    "Knedlik": "A classic Central European side dish — soft, sliced, and very good with sauce.",
+    "Najvyrukavickovanejsi": " Slovak linguistic monster connected with having more of something usually found on shirts and jackets.",
+    "Najneobhospodarovavatelnejsi": "A famously intimidating Slovak-style word describing something extremely difficult to manage or cultivate.",
+    "You shall not pass": "A famous fantasy line shouted when someone absolutely refuses to let another person through.",
+    "ABCanalysis": ""A prioritization method where a small group usually matters disproportionately more than the rest.",
+    "Hyundai": "A company whose name is strongly associated with South Korea and roads.",    
+    "Podbiel": "A northern Slovak village known for a remarkably preserved collection of traditional wooden houses.",
+    "Orava": "A northern Slovak region sharing its name with a river, a reservoir, and one extremely photogenic castle.",
+    "Toffifee": "A confection whose structure hides several different textures inside one small brown cup."
 };
 
 
