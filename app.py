@@ -320,11 +320,13 @@ GAME_HTML = r"""
         14px;
 
     font-weight:
-        700;
+        800;
 
     margin-top:
         4px;
-    color:black;
+
+    color:
+        #2563eb;
 }
 
 #ks-letters {
@@ -973,7 +975,8 @@ GAME_HTML = r"""
 
         <p>
             The maze also contains <strong>portals</strong>.
-            Matching letters show which portals belong together:
+            Match them by shape:
+            <strong>A = square, B = circle, C = triangle, D = diamond.</strong>
             <strong>Purple = IN</strong> and <strong>blue = OUT</strong>.
         </p>
 
@@ -1058,8 +1061,9 @@ GAME_HTML = r"""
 
     Move with Arrow Keys / WASD / swipe on the playground
     • SPACE pauses
-    • Purple portal = IN
-    • Blue portal = OUT
+    • Square / circle / triangle / diamond = matching portal pairs
+    • Purple = IN
+    • Blue = OUT
 
 </div>
 
@@ -3216,7 +3220,7 @@ function drawPortal(
 
     ctx.stroke();
 
-    /* PORTAL LETTER */
+    /* IN / OUT ONLY — portal identity is shown by shape */
 
     ctx.textAlign =
         "center";
@@ -3228,21 +3232,7 @@ function drawPortal(
         "white";
 
     ctx.font =
-        "bold 11px Arial";
-
-    ctx.fillText(
-        label,
-        cx,
-        cy - 1
-    );
-
-    /* IN / OUT */
-
-    ctx.textBaseline =
-        "alphabetic";
-
-    ctx.font =
-        "bold 6px Arial";
+        "bold 7px Arial";
 
     ctx.fillText(
         entry
@@ -3252,7 +3242,7 @@ function drawPortal(
         "OUT",
 
         cx,
-        cy + 9
+        cy
     );
 
 }
@@ -3688,7 +3678,7 @@ function drawPauseOverlay() {
     );
 
     ctx.fillText(
-        "even legendary castle explorers need a breather.",
+        "even fearless chest hunters need a breather.",
         cx,
         cy + 14
     );
