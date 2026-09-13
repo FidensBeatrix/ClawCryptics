@@ -20,6 +20,18 @@ def image_to_data_uri(filename: str) -> str:
 
 CLAW_CRYPTICS_IMAGE = image_to_data_uri("ClawCryptics.jpg")
 
+# Supabase scoreboard config.
+# Use ONLY the public/anon key here — never the service-role key.
+try:
+    SUPABASE_URL = st.secrets.get("SUPABASE_URL", "")
+    SUPABASE_ANON_KEY = st.secrets.get(
+        "SUPABASE_ANON_KEY",
+        st.secrets.get("SUPABASE_KEY", "")
+    )
+except Exception:
+    SUPABASE_URL = ""
+    SUPABASE_ANON_KEY = ""
+
 # ============================================================
 # PAGE CONFIG
 # ============================================================
@@ -51,53 +63,227 @@ GAME_HTML = r"""
 }
 
 /* =========================
-   PLAYER SCOREBOARD
+   PLAYER SCOREBOARD / PLAYER PICKER
    ========================= */
 
-#all-player-scoreboard {
-    width: min(650px, 94%);
-    margin: 4px auto 16px auto;
+#play-layout {
+    width: 100%;
+    max-width: 1190px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 270px minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+}
+
+#game-main { min-width: 0; }
+
+#player-scoreboard {
+    position: sticky;
+    top: 10px;
     background: #111827;
     border: 2px solid #7c3aed;
-    border-radius: 10px;
-    padding: 10px 14px;
+    border-radius: 12px;
+    padding: 12px;
     box-sizing: border-box;
-}
-
-.all-score-title {
-    color: #ffd166;
-    font-size: 15px;
-    font-weight: 900;
-    text-align: center;
-    margin-bottom: 7px;
-}
-
-.all-score-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 11px;
     color: #f8fafc;
 }
 
-.all-score-table th,
-.all-score-table td {
-    padding: 5px 4px;
+.player-score-title {
+    color: #ffd166;
+    font-size: 18px;
+    font-weight: 900;
     text-align: center;
-    border-bottom: 1px solid #334155;
+    margin-bottom: 4px;
 }
 
-.all-score-table th:first-child,
-.all-score-table td:first-child {
-    text-align: left;
-}
-
-.all-score-table th {
+#current-player-line {
     color: #93c5fd;
+    font-size: 12px;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+#player-score-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 11px;
+}
+
+#player-score-table th,
+#player-score-table td {
+    padding: 6px 3px;
+    border-bottom: 1px solid #334155;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#player-score-table th:first-child,
+#player-score-table td:first-child {
+    text-align: left;
+    width: 42%;
+}
+
+#player-score-table th {
+    color: #7dd3fc;
     font-weight: 900;
 }
 
-.all-score-table tr:last-child td {
-    border-bottom: 0;
+#player-score-table tbody tr.active-player {
+    background: rgba(124, 58, 237, .22);
+}
+
+#player-score-table tbody tr:last-child td { border-bottom: 0; }
+
+#scoreboard-empty,
+#scoreboard-error {
+    padding: 10px 4px;
+    font-size: 11px;
+    line-height: 1.4;
+    text-align: center;
+    opacity: .86;
+}
+
+#scoreboard-error { color: #fca5a5; }
+
+#unique-mode-box {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid #334155;
+    text-align: center;
+}
+
+#unique-mode-button {
+    width: 100%;
+    border: 0;
+    border-radius: 8px;
+    padding: 9px 8px;
+    font-size: 12px;
+    font-weight: 900;
+    color: white;
+    background: #3f6212;
+    cursor: pointer;
+}
+
+#unique-mode-button:hover { background: #4d7c0f; }
+#unique-mode-button.off { background: #475569; }
+
+#unique-mode-note {
+    margin-top: 7px;
+    font-size: 10px;
+    line-height: 1.35;
+    opacity: .72;
+}
+
+#player-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10050;
+    background: rgba(2, 6, 23, .82);
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    box-sizing: border-box;
+}
+
+#player-card {
+    width: min(500px, 95vw);
+    background: #111827;
+    border: 2px solid #7c3aed;
+    border-radius: 14px;
+    padding: 22px;
+    box-sizing: border-box;
+    color: #f8fafc;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,.45);
+}
+
+#player-card h3 {
+    margin: 0 0 6px;
+    color: #ffd166;
+    font-size: 24px;
+}
+
+.player-subtitle {
+    margin: 0 0 18px;
+    font-size: 13px;
+    opacity: .82;
+}
+
+.player-choice-block {
+    margin-top: 14px;
+    padding: 12px;
+    border: 1px solid #334155;
+    border-radius: 10px;
+}
+
+.player-choice-block label {
+    display: block;
+    margin-bottom: 7px;
+    color: #93c5fd;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+#old-player-select,
+#new-player-name {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #475569;
+    border-radius: 8px;
+    padding: 10px 11px;
+    background: #020617;
+    color: white;
+    font-size: 14px;
+}
+
+.player-choice-button {
+    width: 100%;
+    margin-top: 9px;
+    border: 0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    background: #7c3aed;
+    color: white;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.player-choice-button:hover { background: #5b21b6; }
+
+#player-picker-message {
+    min-height: 20px;
+    margin-top: 10px;
+    color: #fca5a5;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+#cancel-player-picker {
+    margin-top: 8px;
+    border: 0;
+    background: transparent;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+@media (max-width: 980px) {
+    #play-layout {
+        display: block;
+        width: 100%;
+    }
+
+    #player-scoreboard {
+        position: static;
+        width: min(760px, 96%);
+        margin: 0 auto 12px;
+    }
 }
 
 /* =========================
@@ -627,77 +813,6 @@ GAME_HTML = r"""
 
 
 /* =========================
-   WORD PROGRESS / RANDOMIZER MODE
-   ========================= */
-
-#word-progress {
-    width: min(760px, 96%);
-    margin: 4px auto 12px auto;
-    padding: 8px 12px;
-    box-sizing: border-box;
-    border: 1px solid #3f6212;
-    border-radius: 10px;
-    background: #111827;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 18px;
-    flex-wrap: wrap;
-    font-size: 13px;
-    font-weight: 800;
-    color: #f8fafc;
-}
-
-.word-progress-number {
-    color: #ffd166;
-    font-size: 15px;
-    font-weight: 900;
-}
-
-#unique-mode-button {
-    border: 0;
-    border-radius: 8px;
-    padding: 7px 12px;
-    font-size: 12px;
-    font-weight: 900;
-    color: white;
-    background: #3f6212;
-    cursor: pointer;
-}
-
-#unique-mode-button:hover {
-    background: #4d7c0f;
-}
-
-#unique-mode-button.off {
-    background: #475569;
-}
-
-#reset-found-button {
-    border: 0;
-    border-radius: 8px;
-    padding: 7px 12px;
-    font-size: 12px;
-    font-weight: 900;
-    color: white;
-    background: #7c2d12;
-    cursor: pointer;
-}
-
-#reset-found-button:hover {
-    background: #9a3412;
-}
-
-#unique-mode-note {
-    width: 100%;
-    text-align: center;
-    font-size: 11px;
-    font-weight: 700;
-    opacity: .72;
-    margin-top: -5px;
-}
-
-/* =========================
    MOBILE TOUCH CONTROLS
    ========================= */
 #mobile-controls {
@@ -781,14 +896,6 @@ GAME_HTML = r"""
 
 @media (max-width: 700px) {
 
-    #word-progress {
-        width: 98%;
-        gap: 8px 12px;
-        margin-bottom: 8px;
-        padding: 8px;
-        font-size: 12px;
-    }
-
     #unique-mode-note {
         font-size: 10px;
     }
@@ -807,12 +914,6 @@ GAME_HTML = r"""
         width: 100%;
         padding: 0 2px;
         box-sizing: border-box;
-    }
-
-    #all-player-scoreboard {
-        width: 98%;
-        padding: 8px;
-        margin-bottom: 10px;
     }
 
     .all-score-table {
@@ -925,7 +1026,7 @@ GAME_HTML = r"""
 
         <br>
 
-        Race through the maze, collect every <strong>treasure chest</strong>, and uncover the scrambled letters hidden inside.
+        Race through the maze, collect every 🧰 <strong>treasure chest</strong>, and uncover the scrambled letters hidden inside.
 
         <br>
 
@@ -933,7 +1034,7 @@ GAME_HTML = r"""
 
         <br>
 
-        Except there’s a hungry <strong>dinosaur on your tail</strong>, and it has absolutely no respect for puzzle-solving time.
+        Except there’s a hungry 🦖 <strong>dinosaur on your tail</strong>, and it has absolutely no respect for puzzle-solving time.
 
         <br>
 
@@ -951,6 +1052,38 @@ GAME_HTML = r"""
         </button>
     </div>
 
+</div>
+
+<div id="player-modal">
+    <div id="player-card">
+        <h3>🐾 Who's playing?</h3>
+        <div class="player-subtitle">
+            Continue as an existing player or create a new one.
+        </div>
+
+        <div class="player-choice-block">
+            <label for="old-player-select">Existing player</label>
+            <select id="old-player-select">
+                <option value="">Loading players...</option>
+            </select>
+            <button class="player-choice-button" id="use-old-player" type="button">
+                PLAY AS SELECTED PLAYER
+            </button>
+        </div>
+
+        <div class="player-choice-block">
+            <label for="new-player-name">New player</label>
+            <input id="new-player-name" type="text" maxlength="24"
+                   autocomplete="off" placeholder="Enter player name">
+            <button class="player-choice-button" id="create-player" type="button">
+                CREATE & PLAY
+            </button>
+        </div>
+
+        <div id="player-picker-message"></div>
+
+        <button id="cancel-player-picker" type="button">Back</button>
+    </div>
 </div>
 
 <div id="help-modal">
@@ -1006,19 +1139,34 @@ GAME_HTML = r"""
     style="display:none;"
 >
 
-<div id="word-progress">
-    <span>Possible words: <span class="word-progress-number" id="possible-word-count">0</span></span>
-    <span>Found: <span class="word-progress-number" id="found-word-count">0</span></span>
-    <button id="unique-mode-button" type="button">
-        New words only: ON
-    </button>
-    <button id="reset-found-button" type="button">
-        Reset Found
-    </button>
-    <div id="unique-mode-note">
-        ON = already solved words are skipped when a new round is randomized.
+<div id="play-layout">
+
+<aside id="player-scoreboard">
+    <div class="player-score-title">🏆 Scoreboard</div>
+    <div id="current-player-line">Choose a player to begin</div>
+
+    <table id="player-score-table">
+        <thead>
+            <tr>
+                <th>Player</th>
+                <th>Games</th>
+                <th>Wins</th>
+                <th>Words</th>
+            </tr>
+        </thead>
+        <tbody id="player-score-body"></tbody>
+    </table>
+
+    <div id="scoreboard-empty" style="display:none;">No players yet.</div>
+    <div id="scoreboard-error" style="display:none;"></div>
+
+    <div id="unique-mode-box">
+        <button id="unique-mode-button" type="button">New words only: ON</button>
+        <div id="unique-mode-note">Skip words this player has already solved.</div>
     </div>
-</div>
+</aside>
+
+<div id="game-main">
 
 <div id="ks-header">
 
@@ -1121,6 +1269,9 @@ GAME_HTML = r"""
 
 </div>
 
+</div><!-- /game-main -->
+</div><!-- /play-layout -->
+
 </div>
 
 <script>
@@ -1143,6 +1294,307 @@ if (
 }
 
 ROOT.dataset.ready = "1";
+
+/* ============================================================
+   SUPABASE PLAYERS / SCOREBOARD
+   ============================================================ */
+
+const SUPABASE_URL = __SUPABASE_URL__;
+const SUPABASE_ANON_KEY = __SUPABASE_ANON_KEY__;
+const PLAYER_TABLE = "claw_cryptics_players";
+
+let players = [];
+let currentPlayer = null;
+
+function supabaseReady() {
+    return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
+}
+
+function supabaseHeaders(extra = {}) {
+    return {
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+        "Content-Type": "application/json",
+        ...extra
+    };
+}
+
+async function supabaseRequest(path, options = {}) {
+    if (!supabaseReady()) {
+        throw new Error("Supabase is not configured in Streamlit secrets.");
+    }
+
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/${path}`,
+        {
+            ...options,
+            headers: supabaseHeaders(options.headers || {})
+        }
+    );
+
+    if (!response.ok) {
+        const detail = await response.text();
+        throw new Error(detail || `Supabase request failed (${response.status}).`);
+    }
+
+    if (response.status === 204) return null;
+
+    const raw = await response.text();
+    return raw ? JSON.parse(raw) : null;
+}
+
+function safeWords(value) {
+    return Array.isArray(value)
+        ? value.filter(word => WORD_OPTIONS.includes(word))
+        : [];
+}
+
+function currentPlayerWords() {
+    return currentPlayer ? safeWords(currentPlayer.found_words) : [];
+}
+
+async function loadPlayers() {
+    const scoreError = document.getElementById("scoreboard-error");
+
+    try {
+        const data = await supabaseRequest(
+            `${PLAYER_TABLE}?select=id,name,games,wins,found_words&order=wins.desc,games.desc,name.asc`,
+            { method: "GET" }
+        );
+
+        players = Array.isArray(data) ? data : [];
+
+        if (currentPlayer) {
+            const refreshed = players.find(p => p.id === currentPlayer.id);
+            if (refreshed) currentPlayer = refreshed;
+        }
+
+        renderScoreboard();
+        renderPlayerPicker();
+        scoreError.style.display = "none";
+    } catch (err) {
+        players = [];
+        renderScoreboard();
+        renderPlayerPicker();
+        scoreError.textContent = "Scoreboard unavailable: " + err.message;
+        scoreError.style.display = "block";
+    }
+}
+
+function renderScoreboard() {
+    const body = document.getElementById("player-score-body");
+    const empty = document.getElementById("scoreboard-empty");
+    const currentLine = document.getElementById("current-player-line");
+
+    body.innerHTML = "";
+
+    currentLine.textContent = currentPlayer
+        ? `Playing as: ${currentPlayer.name}`
+        : "Choose a player to begin";
+
+    if (!players.length) {
+        empty.style.display = "block";
+        return;
+    }
+
+    empty.style.display = "none";
+
+    players.forEach(player => {
+        const tr = document.createElement("tr");
+
+        if (currentPlayer && player.id === currentPlayer.id) {
+            tr.classList.add("active-player");
+        }
+
+        const values = [
+            player.name,
+            player.games || 0,
+            player.wins || 0,
+            safeWords(player.found_words).length
+        ];
+
+        values.forEach(value => {
+            const td = document.createElement("td");
+            td.textContent = value;
+            tr.appendChild(td);
+        });
+
+        body.appendChild(tr);
+    });
+}
+
+function renderPlayerPicker() {
+    const select = document.getElementById("old-player-select");
+    select.innerHTML = "";
+
+    if (!players.length) {
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = "No existing players yet";
+        select.appendChild(option);
+        return;
+    }
+
+    const first = document.createElement("option");
+    first.value = "";
+    first.textContent = "Choose a player...";
+    select.appendChild(first);
+
+    [...players]
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .forEach(player => {
+            const option = document.createElement("option");
+            option.value = player.id;
+            option.textContent = player.name;
+            select.appendChild(option);
+        });
+}
+
+async function openPlayerPicker() {
+    const modal = document.getElementById("player-modal");
+    document.getElementById("player-picker-message").textContent = "";
+    modal.style.display = "flex";
+    await loadPlayers();
+}
+
+function closePlayerPicker() {
+    document.getElementById("player-modal").style.display = "none";
+}
+
+async function chooseExistingPlayer() {
+    const id = document.getElementById("old-player-select").value;
+    const message = document.getElementById("player-picker-message");
+
+    if (!id) {
+        message.textContent = "Choose a player first.";
+        return;
+    }
+
+    const player = players.find(p => String(p.id) === String(id));
+
+    if (!player) {
+        message.textContent = "That player could not be loaded.";
+        return;
+    }
+
+    currentPlayer = player;
+    foundWords = new Set(currentPlayerWords());
+    saveFoundWords();
+    updateWordProgress();
+    renderScoreboard();
+    beginSelectedPlayerGame();
+}
+
+async function createNewPlayer() {
+    const input = document.getElementById("new-player-name");
+    const message = document.getElementById("player-picker-message");
+    const name = input.value.trim().replace(/\s+/g, " ");
+
+    if (!name) {
+        message.textContent = "Enter a player name.";
+        return;
+    }
+
+    if (players.some(p => p.name.toLocaleLowerCase() === name.toLocaleLowerCase())) {
+        message.textContent = "That player already exists — choose them above.";
+        return;
+    }
+
+    message.textContent = "Creating player...";
+
+    try {
+        const created = await supabaseRequest(
+            PLAYER_TABLE,
+            {
+                method: "POST",
+                headers: { "Prefer": "return=representation" },
+                body: JSON.stringify({
+                    name,
+                    games: 0,
+                    wins: 0,
+                    found_words: []
+                })
+            }
+        );
+
+        if (!created || !created.length) {
+            throw new Error("Supabase did not return the new player.");
+        }
+
+        currentPlayer = created[0];
+        foundWords = new Set();
+        saveFoundWords();
+        input.value = "";
+
+        await loadPlayers();
+        updateWordProgress();
+        beginSelectedPlayerGame();
+
+    } catch (err) {
+        message.textContent = "Could not create player: " + err.message;
+    }
+}
+
+function beginSelectedPlayerGame() {
+    closePlayerPicker();
+    introPanel.style.display = "none";
+    gameArea.style.display = "block";
+    resetGame(true);
+    ROOT.focus();
+}
+
+async function patchCurrentPlayer(fields) {
+    if (!currentPlayer) return;
+
+    const data = await supabaseRequest(
+        `${PLAYER_TABLE}?id=eq.${encodeURIComponent(currentPlayer.id)}`,
+        {
+            method: "PATCH",
+            headers: { "Prefer": "return=representation" },
+            body: JSON.stringify(fields)
+        }
+    );
+
+    if (Array.isArray(data) && data[0]) {
+        currentPlayer = data[0];
+    } else {
+        currentPlayer = { ...currentPlayer, ...fields };
+    }
+
+    await loadPlayers();
+}
+
+async function recordGameStarted() {
+    if (!currentPlayer) return;
+
+    try {
+        await patchCurrentPlayer({
+            games: (Number(currentPlayer.games) || 0) + 1
+        });
+    } catch (err) {
+        console.error("Could not record game:", err);
+    }
+}
+
+async function recordWin(word) {
+    if (!currentPlayer) return;
+
+    const words = new Set(currentPlayerWords());
+    words.add(word);
+
+    try {
+        await patchCurrentPlayer({
+            wins: (Number(currentPlayer.wins) || 0) + 1,
+            found_words: [...words]
+        });
+
+        foundWords = new Set(words);
+        saveFoundWords();
+        updateWordProgress();
+    } catch (err) {
+        console.error("Could not record win:", err);
+    }
+}
 
 /*
    Detect touch-first devices directly instead of relying only on CSS viewport
@@ -1332,10 +1784,7 @@ function applyRandomMaze() {
    ============================================================ */
 
 
-const possibleWordCountEl = document.getElementById("possible-word-count");
-const foundWordCountEl = document.getElementById("found-word-count");
 const uniqueModeButton = document.getElementById("unique-mode-button");
-const resetFoundButton = document.getElementById("reset-found-button");
 const uniqueModeNote = document.getElementById("unique-mode-note");
 
 function saveFoundWords() {
@@ -1356,39 +1805,24 @@ function saveUniqueMode() {
     } catch (err) {}
 }
 
-resetFoundButton.addEventListener("click", () => {
-    const ok = window.confirm("Reset all found words back to 0?");
-    if (!ok) return;
-
-    foundWords.clear();
-
-    try {
-        localStorage.removeItem(FOUND_WORDS_STORAGE_KEY);
-    } catch (err) {}
-
-    updateWordProgress();
-});
 
 function updateWordProgress() {
-    possibleWordCountEl.textContent = WORD_OPTIONS.length;
-    foundWordCountEl.textContent = foundWords.size;
-
     uniqueModeButton.textContent =
         `New words only: ${newWordsOnly ? "ON" : "OFF"}`;
 
     uniqueModeButton.classList.toggle("off", !newWordsOnly);
 
-    if (newWordsOnly) {
-        if (foundWords.size >= WORD_OPTIONS.length) {
-            uniqueModeNote.textContent =
-                "You found them all 🎉 Randomizer can now use the full list again.";
-        } else {
-            uniqueModeNote.textContent =
-                "ON = already solved words are skipped when a new round is randomized.";
-        }
+    if (!currentPlayer) {
+        uniqueModeNote.textContent = "Choose a player first.";
+    } else if (newWordsOnly) {
+        const solved = foundWords.size;
+        uniqueModeNote.textContent =
+            solved >= WORD_OPTIONS.length
+            ? "All words solved — the full list can repeat."
+            : `Skipping this player's ${solved} solved word${solved === 1 ? "" : "s"}.`;
     } else {
         uniqueModeNote.textContent =
-            "OFF = any word can appear again, including ones you already solved.";
+            "Any word can appear, including solved ones.";
     }
 }
 
@@ -1841,6 +2275,7 @@ function resetGame(
 
     if (beginNow) {
 
+        recordGameStarted();
         startOpeningCountdown();
 
     }
@@ -2666,7 +3101,7 @@ function pauseGame() {
             [0, 0];
 
         state.lastEvent =
-            "🐾 PAWSING THE CLAWS 🐾 — Hunting for letters, dodging T-Rexes...";
+            "🐾 PAWSING THE CLAWS 🐾";
 
         render();
 
@@ -2880,6 +3315,7 @@ function submitGuess() {
         state.gameOver = true;
         state.won = true;
         markCurrentWordFound();
+        recordWin(WORD);
         state.score += 1000;
         state.lastEvent = `🎉 CORRECT! ${WORD}!`;
 
@@ -4696,7 +5132,7 @@ helpGameLiveButton.addEventListener(
             state.paused = true;
             state.playerDir = [0, 0];
             state.nextDir = [0, 0];
-            state.lastEvent = "🐾 PAWSING THE CLAWS 🐾 — Hunting for letters, dodging T-Rexes...";
+            state.lastEvent = "🐾 PAWSING THE CLAWS 🐾";
             render();
         }
 
@@ -4738,21 +5174,32 @@ document.addEventListener(
 startGameButton.addEventListener(
     "click",
     () => {
+        openPlayerPicker();
+    }
+);
 
-        introPanel.style.display =
-            "none";
+document.getElementById("use-old-player").addEventListener(
+    "click",
+    chooseExistingPlayer
+);
 
-        gameArea.style.display =
-            "block";
+document.getElementById("create-player").addEventListener(
+    "click",
+    createNewPlayer
+);
 
-        
+document.getElementById("cancel-player-picker").addEventListener(
+    "click",
+    closePlayerPicker
+);
 
-        resetGame(
-            true
-        );
-
-        ROOT.focus();
-
+document.getElementById("new-player-name").addEventListener(
+    "keydown",
+    (event) => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            createNewPlayer();
+        }
     }
 );
 
@@ -4852,6 +5299,8 @@ resetGame(
     false
 );
 
+loadPlayers();
+
 })();
 
 </script>
@@ -4865,9 +5314,11 @@ resetGame(
 # ============================================================
 
 GAME_HTML = GAME_HTML.replace("__CLAW_IMAGE__", CLAW_CRYPTICS_IMAGE)
+GAME_HTML = GAME_HTML.replace("__SUPABASE_URL__", json.dumps(SUPABASE_URL))
+GAME_HTML = GAME_HTML.replace("__SUPABASE_ANON_KEY__", json.dumps(SUPABASE_ANON_KEY))
 
 components.html(
     GAME_HTML,
-    height=825,
+    height=900,
     scrolling=True
 )
