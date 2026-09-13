@@ -1,11 +1,41 @@
+"""
+Claw Cryptics
+=============
+
+A small maze / word game made with Streamlit, HTML, CSS and JavaScript.
+
+How the game works:
+- The player controls a green dog inside a maze.
+- A dinosaur chases the player.
+- Treasure chests contain scrambled letters.
+- After collecting all chests, the player guesses the hidden answer.
+- Answers can be words, phrases, names, places or brands.
+- Supabase is used to save players, games, wins and solved words.
+- The game also supports mobile controls and a shared scoreboard.
+
+This file is split into #region / #endregion sections so it is easier to
+collapse parts of the code in editors such as VS Code.
+
+Most of the actual game runs in JavaScript inside GAME_HTML.
+Python mainly prepares Streamlit, loads the image and passes the Supabase
+settings into the HTML game.
+"""
+
+#region IMPORTS
+# Standard Python tools used for JSON, image conversion and file paths.
 import json
 import base64
 from pathlib import Path
 
+# Streamlit displays the game as a web application.
 import streamlit as st
 import streamlit.components.v1 as components
+#endregion IMPORTS
 
 
+#region IMAGE SETUP
+# Convert the local game image into text that can be displayed inside
+# Streamlit's HTML iframe.
 def image_to_data_uri(filename: str) -> str:
     """Embed a local image so it also works inside the Streamlit component iframe."""
     path = Path(filename)
@@ -19,7 +49,11 @@ def image_to_data_uri(filename: str) -> str:
 
 
 CLAW_CRYPTICS_IMAGE = image_to_data_uri("ClawCryptics.jpg")
+#endregion IMAGE SETUP
 
+#region SUPABASE SETTINGS
+# Supabase stores the shared player scoreboard online.
+# The public/publishable key is read from Streamlit Secrets.
 # Supabase scoreboard config.
 # Use ONLY the public/anon key here — never the service-role key.
 try:
@@ -32,6 +66,9 @@ except Exception:
     SUPABASE_URL = ""
     SUPABASE_ANON_KEY = ""
 
+#endregion SUPABASE SETTINGS
+
+#region STREAMLIT PAGE CONFIG
 # ============================================================
 # PAGE CONFIG
 # ============================================================
@@ -42,6 +79,9 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
+#endregion STREAMLIT PAGE CONFIG
+
+#region GAME HTML / CSS / JAVASCRIPT
 # ============================================================
 # GAME
 # ============================================================
@@ -62,9 +102,8 @@ GAME_HTML = r"""
     margin: 0 auto;
 }
 
-/* =========================
-   PLAYER SCOREBOARD / PLAYER PICKER
-   ========================= */
+/* #region PLAYER SCOREBOARD / PLAYER PICKER */
+/* Styles for the player list, score table and player selection popup. */
 
 #play-layout {
     width: 100%;
@@ -306,9 +345,10 @@ GAME_HTML = r"""
     }
 }
 
-/* =========================
-   INTRO
-   ========================= */
+/* #endregion PLAYER SCOREBOARD / PLAYER PICKER */
+
+/* #region INTRO SCREEN */
+/* Styles for the first screen shown before the game starts. */
 #intro-panel {
     width: min(1120px, 96%);
     max-width: 1120px;
@@ -491,9 +531,10 @@ GAME_HTML = r"""
     background: #5b21b6;
 }
 
-/* =========================
-   GAME HEADER
-   ========================= */
+/* #endregion INTRO SCREEN */
+
+/* #region GAME HEADER */
+/* Title, game status and collected-letter display. */
 
 #ks-header {
 
@@ -556,9 +597,10 @@ GAME_HTML = r"""
         6px;
 }
 
-/* =========================
-   GAME CANVAS
-   ========================= */
+/* #endregion GAME HEADER */
+
+/* #region GAME CANVAS */
+/* The canvas is where the maze, dog, dinosaur and effects are drawn. */
 
 #game-shell {
 
@@ -616,9 +658,10 @@ GAME_HTML = r"""
     user-select: none;
 }
 
-/* =========================
-   BUTTONS
-   ========================= */
+/* #endregion GAME CANVAS */
+
+/* #region GAME BUTTONS */
+/* Restart, pause and help buttons below the playground. */
 
 #controls {
 
@@ -692,9 +735,10 @@ GAME_HTML = r"""
         12px;
 }
 
-/* =========================
-   GUESS PANEL
-   ========================= */
+/* #endregion GAME BUTTONS */
+
+/* #region GUESS PANEL */
+/* Appears after all treasure chests have been collected. */
 
 #guess-panel {
 
@@ -832,9 +876,10 @@ GAME_HTML = r"""
 
 
 
-/* =========================
-   MOBILE TOUCH CONTROLS
-   ========================= */
+/* #endregion GUESS PANEL */
+
+/* #region MOBILE CONTROLS */
+/* On-screen direction buttons and smaller-screen adjustments. */
 #mobile-controls {
     display: none;
     margin: 12px auto 6px;
@@ -1024,6 +1069,7 @@ GAME_HTML = r"""
 
 }
 
+/* #endregion MOBILE CONTROLS */
 </style>
 
 <div id="ks-wrap">
@@ -1300,9 +1346,8 @@ GAME_HTML = r"""
 
 (() => {
 
-/* ============================================================
-   SETUP
-   ============================================================ */
+/* #region JAVASCRIPT SETUP */
+/* Find the main game element and make sure the script is initialized once. */
 
 const ROOT =
     document.getElementById(
@@ -1317,9 +1362,10 @@ if (
 
 ROOT.dataset.ready = "1";
 
-/* ============================================================
-   SUPABASE PLAYERS / SCOREBOARD
-   ============================================================ */
+/* #endregion JAVASCRIPT SETUP */
+
+/* #region SUPABASE PLAYERS AND SCOREBOARD */
+/* Read and update player statistics stored in Supabase. */
 
 const SUPABASE_URL = __SUPABASE_URL__;
 const SUPABASE_ANON_KEY = __SUPABASE_ANON_KEY__;
@@ -1403,6 +1449,7 @@ async function loadPlayers() {
     }
 }
 
+// Rebuild the visible scoreboard from the latest player data.
 function renderScoreboard() {
     const body = document.getElementById("player-score-body");
     const empty = document.getElementById("scoreboard-empty");
@@ -1598,6 +1645,7 @@ async function recordGameStarted() {
     }
 }
 
+// Save a win and the newly solved word to Supabase.
 async function recordWin(word) {
     if (!currentPlayer) return;
 
@@ -1697,6 +1745,11 @@ let previousWord = null;
 
 const CELL = 30;
 const SPEED = 135;
+
+/* #endregion SUPABASE PLAYERS AND SCOREBOARD */
+
+/* #region WORDS AND MAZE */
+/* Word list, hints and maze configuration live in this section. */
 
 /* ============================================================
    MAZE
@@ -1805,6 +1858,11 @@ function applyRandomMaze() {
     }
 }
 
+/* #endregion WORDS AND MAZE */
+
+/* #region RANDOM WORD AND CHEST PLACEMENT */
+/* Pick the answer and spread its treasure chests around the maze. */
+
 /* ============================================================
    RANDOM WORD / PHRASE + RANDOM MUFFINS
    Spaces do NOT need castles.
@@ -1867,6 +1925,7 @@ function markCurrentWordFound() {
 }
 
 
+// Choose a random answer, avoiding already solved words when that option is ON.
 function chooseRandomWord() {
     let choices = [...WORD_OPTIONS];
 
@@ -1904,6 +1963,7 @@ function manhattan(a, b) {
     return Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]);
 }
 
+// Find safe maze cells where the treasure chests can be placed.
 function randomCastlePositions(count) {
     const portalKeys = allPortalKeys();
 
@@ -1976,9 +2036,10 @@ function randomCastlePositions(count) {
 
 let CASTLE_POSITIONS = [];
 
-/* ============================================================
-   HTML ELEMENTS
-   ============================================================ */
+/* #endregion RANDOM WORD AND CHEST PLACEMENT */
+
+/* #region HTML ELEMENT REFERENCES */
+/* Store references to buttons, canvas, text boxes and other page elements. */
 
 const canvas =
     document.getElementById(
@@ -2081,9 +2142,10 @@ const closeHelpButton =
         "close-help"
     );
 
-/* ============================================================
-   GAME VARIABLES
-   ============================================================ */
+/* #endregion HTML ELEMENT REFERENCES */
+
+/* #region GAME STATE VARIABLES */
+/* Timers and variables that change while a game is running. */
 
 let timer =
     null;
@@ -2109,9 +2171,10 @@ let openingCountdownTimer =
 let openingCountdownFinish =
     null;
 
-/* ============================================================
-   UTILITIES
-   ============================================================ */
+/* #endregion GAME STATE VARIABLES */
+
+/* #region HELPER FUNCTIONS */
+/* Small reusable functions used by several parts of the game. */
 
 function keyOf(pos) {
 
@@ -2155,10 +2218,12 @@ function shuffle(arr) {
 
 }
 
-/* ============================================================
-   RESET
-   ============================================================ */
+/* #endregion HELPER FUNCTIONS */
 
+/* #region GAME RESET AND START */
+/* Prepare a fresh round, choose a word and reset all moving pieces. */
+
+// Reset everything needed for a new round.
 function resetGame(
     beginNow = true
 ) {
@@ -3799,6 +3864,7 @@ function drawCastle(pos) {
    DRAW PLAYER - GREEN DOG
    ============================================================ */
 
+// Draw the green dog on the canvas using simple shapes.
 function drawPlayer() {
 
     const [r, c] = state.player;
@@ -3931,6 +3997,7 @@ function drawPlayer() {
    DRAW DINOSAUR
    ============================================================ */
 
+// Draw the dinosaur that chases the player.
 function drawDino() {
 
     const [
@@ -4212,7 +4279,7 @@ function drawEndOverlay() {
 
             780,
 
-            state.won ? 220 : 330,
+            state.won ? 250 : 330,
 
             state.won
 
@@ -4259,10 +4326,10 @@ function drawEndOverlay() {
 
         // New Game button under the solved word.
         drawRect(
-            cx - 125,
-            cy + 58,
-            250,
-            52,
+            cx - 100,
+            cy + 54,
+            200,
+            42,
             "#7c3aed",
             "#a78bfa",
             3
@@ -4272,12 +4339,24 @@ function drawEndOverlay() {
             "white";
 
         ctx.font =
-            "bold 21px Arial";
+            "bold 18px Arial";
 
         ctx.fillText(
             "NEW GAME",
             cx,
-            cy + 91
+            cy + 81
+        );
+
+        ctx.fillStyle =
+            "#93c5fd";
+
+        ctx.font =
+            "bold 14px Arial";
+
+        ctx.fillText(
+            "or press ENTER",
+            cx,
+            cy + 112
         );
 
     }
@@ -4551,7 +4630,7 @@ function startFireworks() {
                 fireworkFrame++;
 
                 if (
-                    fireworkFrame > 750
+                    fireworkFrame > 450
                 ) {
 
                     stopFireworks();
@@ -5309,10 +5388,10 @@ canvas.addEventListener(
 
             const clickedWinButton =
                 state.won &&
-                x >= cx - 125 &&
-                x <= cx + 125 &&
-                y >= cy + 58 &&
-                y <= cy + 110;
+                x >= cx - 100 &&
+                x <= cx + 100 &&
+                y >= cy + 54 &&
+                y <= cy + 96;
 
             const clickedDeathButton =
                 !state.won &&
@@ -5376,6 +5455,7 @@ loadPlayers();
 </div>
 
 """
+#endregion GAME HTML / CSS / JAVASCRIPT
 
 # ============================================================
 # DISPLAY GAME
