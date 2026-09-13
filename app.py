@@ -1649,14 +1649,14 @@ const WORD_OPTIONS = [
 ];
 
 const WORD_HINTS = {
-    "Pelisky": ""A late-1990s Czech film set around a very tense period in modern history.",
+    "Pelisky": "A late-1990s Czech film set around a very tense period in modern history.",
     "Neni vojak jako vojak": "A memorable line connected with the same Czech film as another answer in this game.",
     "Proletarian": "A word connected with the working class and old political terminology, a term strongly associated with Marxist theory.",
     "Knedlik": "A classic Central European side dish — soft, sliced, and very good with sauce.",
-    "Najvyrukavickovanejsi": " Slovak linguistic monster connected with having more of something usually found on shirts and jackets.",
+    "Najvyrukavickovanejsi": "A Slovak linguistic monster connected with having more of something usually found on shirts and jackets.",
     "Najneobhospodarovavatelnejsi": "A famously intimidating Slovak-style word describing something extremely difficult to manage or cultivate.",
     "You shall not pass": "A famous fantasy line shouted when someone absolutely refuses to let another person through.",
-    "ABCanalysis": ""A prioritization method where a small group usually matters disproportionately more than the rest.",
+    "ABCanalysis": "A prioritization method where a small group usually matters disproportionately more than the rest.",
     "Hyundai": "A company whose name is strongly associated with South Korea and roads.",    
     "Podbiel": "A northern Slovak village known for a remarkably preserved collection of traditional wooden houses.",
     "Orava": "A northern Slovak region sharing its name with a river, a reservoir, and one extremely photogenic castle.",
