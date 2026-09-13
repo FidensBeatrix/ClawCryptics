@@ -4257,6 +4257,29 @@ function drawEndOverlay() {
             cy + 24
         );
 
+        // New Game button under the solved word.
+        drawRect(
+            cx - 125,
+            cy + 58,
+            250,
+            52,
+            "#7c3aed",
+            "#a78bfa",
+            3
+        );
+
+        ctx.fillStyle =
+            "white";
+
+        ctx.font =
+            "bold 21px Arial";
+
+        ctx.fillText(
+            "NEW GAME",
+            cx,
+            cy + 91
+        );
+
     }
 
     else {
@@ -4528,7 +4551,7 @@ function startFireworks() {
                 fireworkFrame++;
 
                 if (
-                    fireworkFrame > 360
+                    fireworkFrame > 750
                 ) {
 
                     stopFireworks();
@@ -5272,9 +5295,9 @@ canvas.addEventListener(
     "click",
     (event) => {
 
-        // The death-screen restart button is drawn on the canvas, so convert
+        // Win/death restart buttons are drawn on the canvas, so convert
         // the displayed click position back to the canvas's internal pixels.
-        if (state.gameOver && !state.won) {
+        if (state.gameOver) {
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
@@ -5284,12 +5307,21 @@ canvas.addEventListener(
             const cx = canvas.width / 2;
             const cy = canvas.height / 2;
 
-            if (
+            const clickedWinButton =
+                state.won &&
+                x >= cx - 125 &&
+                x <= cx + 125 &&
+                y >= cy + 58 &&
+                y <= cy + 110;
+
+            const clickedDeathButton =
+                !state.won &&
                 x >= cx - 150 &&
                 x <= cx + 150 &&
                 y >= cy + 48 &&
-                y <= cy + 106
-            ) {
+                y <= cy + 106;
+
+            if (clickedWinButton || clickedDeathButton) {
                 resetGame(true);
                 ROOT.focus();
                 return;
